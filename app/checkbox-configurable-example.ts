@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { OnInit } from '@angular/core/src/metadata';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
-/**
- * @title Configurable checkbox
- */
 @Component({
   selector: 'checkbox-configurable-example',
   templateUrl: 'checkbox-configurable-example.html',
   styleUrls: ['checkbox-configurable-example.css'],
 })
-export class CheckboxConfigurableExample {
+export class CheckboxConfigurableExample implements OnInit {
   public allSelected: boolean = false;
 
   checkAllControl = new FormControl(false);
@@ -17,38 +15,38 @@ export class CheckboxConfigurableExample {
   public items = [
     {
       id: 1,
-      val: 'john',
+      name: 'john',
       isChecked: false,
     },
     {
       id: 2,
-      val: 'jane',
+      name: 'jane',
       isChecked: false,
     },
   ];
 
-  itemsFormArray = this.items.map()
+  itemsFormArray: FormArray;
 
-  itemChanged(item, event) {
-    item.isChecked = event.checked;
+  ngOnInit(): void {
+    this.checkAllControl.valueChanges.subscribe((isChecked) => {
+      this.itemsFormArray.controls.forEach((group: any) => group.controls.isChecked.setValue(isChecked));
+    });
 
-    let totalSelected = this.itemsObject.filter((i) => i.isChecked).length;
-    if (totalSelected === 0) {
-      this.allSelected = false;
-      this.indeterminate = false;
-    } else if (totalSelected > 0 && totalSelected < this.itemsObject.length) {
-      this.allSelected = false;
-      this.indeterminate = true;
-    } else if (totalSelected === this.itemsObject.length) {
-      this.allSelected = true;
-      this.indeterminate = false;
-    }
-  }
+    const controls = this.items.map((item) => {
+      const group = new FormGroup({
+        id: new FormControl(item.id),
+        name: new FormControl(item.name),
+        isChecked: new FormControl(item.isChecked),
+      });
 
-  toggleSelectAll(event) {
-    this.allSelected = event.checked;
-    this.itemsObject.forEach((item) => {
-      item.isChecked = event.checked;
+      return group;
+    });
+
+    this.itemsFormArray = new FormArray(controls);
+
+    this.itemsFormArray.valueChanges.subscribe((value) => {
+      this.allSelected = value.every((item) => item.isChecked);
+      this.checkAllControl.setValue(this.allSelected, { emitEvent: false });
     });
   }
 }

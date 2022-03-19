@@ -1,20 +1,18 @@
 <fieldset class="demo-fieldset">
-  <div>
-    <mat-checkbox
-      aria-label="Select All"
-      [checked]="allSelected"
-      (change)="toggleSelectAll($event)"
-    >
-      Todos
-    </mat-checkbox>
-  </div>
-  <div class="demo-select-all-checkboxes" *ngFor="let item of itemsObject">
-    <mat-checkbox
-      [checked]="item.isChecked"
-      (change)="itemChanged(item,$event)"
-    >
-      {{ item.val }}
-    </mat-checkbox>
-    {{item.isChecked}}
-  </div>
+<div>
+  <mat-checkbox [formControl]="checkAllControl"> Todos </mat-checkbox>
+</div>
+<div
+  [formGroup]="item"
+  class="demo-select-all-checkboxes"
+  *ngFor="let item of itemsFormArray.controls"
+>
+  <mat-checkbox
+    [formControl]="item.controls.isChecked"    
+  >
+    {{ item.controls.name.value }}
+  </mat-checkbox>
+</div>
 </fieldset>
+
+<p>{{itemsFormArray.value | json}}</p>
